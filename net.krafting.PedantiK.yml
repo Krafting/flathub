@@ -1,0 +1,82 @@
+app-id: net.krafting.PedantiK
+runtime: org.gnome.Platform
+runtime-version: '47'
+sdk: org.gnome.Sdk
+command: PedantiK.py
+finish-args:
+  - --share=ipc
+  - --device=dri
+  - --share=network
+  - --socket=wayland
+  - --socket=fallback-x11
+
+modules:
+  - name: OpenBLAS
+    buildsystem: cmake-ninja
+    builddir: true
+    config-opts:
+    - -DBUILD_SHARED_LIBS=ON
+    - -DBUILD_TESTING=OFF
+    sources:
+      - type: git
+        url: https://github.com/OpenMathLib/OpenBLAS
+        tag: 'v0.3.30'
+        commit: 993fad6aebbce34a97d3f8c34d6d79d35b64cc48
+
+  - name: meson-python
+    buildsystem: meson
+    sources:
+      - type: git
+        url: https://github.com/mesonbuild/meson-python
+        tag: '0.18.0'
+        commit: e094949f466ae69043fcec3ec68b41ace900ed97
+
+  - python3-pyproject_metadata.json
+
+  - python3-numpy.json
+
+  - python3-pythran.json
+
+  - python3-pybind11.json
+
+  - python3-scipy.json
+
+  - python3-smart_open.json
+
+  - name: Gensim
+    buildsystem: simple
+    build-commands:
+      - pip3 install --no-build-isolation --prefix=/app .
+    sources:
+      - type: git
+        url: https://github.com/piskvorky/gensim
+        tag: '4.4.0'
+        commit: ee2642b4fa26e689ba4595067504668bc7a89016
+
+  - python3-requests.json
+
+  - python3-unidecode.json
+
+  - name: PedantiK
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 PedantiK.py /app/bin/PedantiK.py
+      - mkdir -p /app/share/extra/
+      # Language files
+      - cp -r locales /app/
+      - cp -r languages /app/bin/
+      - cp -r utils/ /app/bin/utils/
+      - install -Dm 0644 frWac_non_lem_no_postag_no_phrase_200_cbow_cut100.bin  /app/models/frWac_non_lem_no_postag_no_phrase_200_cbow_cut100.bin
+      - install -Dm 0644 net.krafting.PedantiK.desktop  /app/share/applications/net.krafting.PedantiK.desktop
+      - install -Dm 0644 net.krafting.PedantiK.metainfo.xml  /app/share/metainfo/net.krafting.PedantiK.metainfo.xml
+      - install -Dm 0644 images/net.krafting.PedantiK.svg /app/share/icons/hicolor/scalable/apps/net.krafting.PedantiK.svg
+    sources:
+      - type: file
+        url: https://embeddings.net/embeddings/frWac_non_lem_no_postag_no_phrase_200_cbow_cut100.bin
+        sha256: d51f3259d1f6fe12155a447623a82695c6d72916b1b61e150e2715c034b6c880
+
+      - type: git
+        url: https://gitlab.com/Krafting/PedantiK
+        tag: '1.0.5'
+        commit: 896533047883b856a4b1b7f1916d93be6cfdf040
+
